@@ -31,8 +31,7 @@ class GarminWeatherView extends Ui.View {
 
     // display content
     if (_description != null) {
-      dc.drawText(30, 50, Gfx.FONT_XTINY, "Current:", Gfx.TEXT_JUSTIFY_LEFT);
-      dc.drawText(50, 70, Gfx.FONT_XTINY, _description, Gfx.TEXT_JUSTIFY_LEFT);
+      dc.drawText(30, 70, Gfx.FONT_XTINY, _description, Gfx.TEXT_JUSTIFY_LEFT);
 
       dc.drawText(
         30,
