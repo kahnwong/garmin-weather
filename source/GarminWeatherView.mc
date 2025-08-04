@@ -31,8 +31,21 @@ class GarminWeatherView extends Ui.View {
 
     // display content
     if (_description != null) {
-      dc.drawText(30, 70, Gfx.FONT_XTINY, _description, Gfx.TEXT_JUSTIFY_LEFT);
+      // draw description - multi-line
+      var allLines = [];
+      var wrapped = wordWrapByWords(_description, 11);
+      for (var j = 0; j < wrapped.size(); ++j) {
+        allLines.add(wrapped[j]);
+      }
 
+      var y = 30;
+      for (var row = 1; row <= 3; ++row) {
+        var text = row - 1 < allLines.size() ? allLines[row - 1] : "";
+        dc.drawText(30, y, Gfx.FONT_XTINY, text, Gfx.TEXT_JUSTIFY_LEFT);
+        y += 20;
+      }
+
+      // the rest
       dc.drawText(
         30,
         100,
@@ -92,5 +105,45 @@ class GarminWeatherView extends Ui.View {
 
       Ui.requestUpdate();
     }
+  }
+
+  // --------- text processing ---------
+  function wordWrapByWords(text, maxLen) {
+    var words = [];
+    var s = text;
+    while (s.length() > 0) {
+      var chars = s.toCharArray();
+      var splitIndex = -1;
+      for (var i = 0; i < chars.size(); i++) {
+        if (chars[i] == " ".toCharArray()[0]) {
+          splitIndex = i;
+          break;
+        }
+      }
+      if (splitIndex == -1) {
+        words.add(s);
+        break;
+      } else {
+        words.add(s.substring(0, splitIndex));
+        s = s.substring(splitIndex + 1, s.length());
+      }
+    }
+    var lines = [];
+    var currentLine = "";
+    for (var i = 0; i < words.size(); ++i) {
+      var word = words[i];
+      if (currentLine.length() == 0) {
+        currentLine = word;
+      } else if (currentLine.length() + 1 + word.length() <= maxLen) {
+        currentLine += " " + word;
+      } else {
+        lines.add(currentLine);
+        currentLine = word;
+      }
+    }
+    if (currentLine.length() > 0) {
+      lines.add(currentLine);
+    }
+    return lines;
   }
 }

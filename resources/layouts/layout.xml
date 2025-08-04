@@ -1,3 +1,5 @@
 <layout id="MainLayout">
-  <!-- <label id="title" x="30" y="30" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_LEFT" /> -->
+  <label id="row1" x="30" y="30" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_CENTER" />
+  <label id="row2" x="30" y="50" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_CENTER" />
+  <label id="row3" x="30" y="70" font="Gfx.FONT_XTINY" justification="Gfx.TEXT_JUSTIFY_CENTER" />
 </layout>
