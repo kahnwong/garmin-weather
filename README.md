@@ -17,6 +17,8 @@ Specify config variables here: `./resources/properties.xml`.
 </properties>
 ```
 
-## Screenshot
+## Screenshots
 
-![screenshot](./docs/screenshot.webp)
+![app](./docs/app.webp)
+
+![glance](./docs/glance.webp)
