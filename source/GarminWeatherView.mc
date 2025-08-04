@@ -11,11 +11,13 @@ class GarminWeatherView extends Ui.View {
   var _temperature;
   var _rain_one_hour;
   var _rain_three_hour;
+  var _weatherService;
 
   function initialize() {
     View.initialize();
 
-    makeWeatherRequest();
+    _weatherService = new WeatherService(method(:onWeatherDataReceived));
+    _weatherService.makeWeatherRequest();
   }
 
   function onLayout(dc) {}
@@ -50,7 +52,7 @@ class GarminWeatherView extends Ui.View {
         30,
         100,
         Gfx.FONT_XTINY,
-        "Temp: " + _temperature.toNumber() + " C",
+        "Temp: " + _temperature.toNumber() + "°C",
         Gfx.TEXT_JUSTIFY_LEFT
       );
 
@@ -73,38 +75,14 @@ class GarminWeatherView extends Ui.View {
 
   function onHide() {}
 
-  // --------- api request ---------
-  function makeWeatherRequest() {
-    var apiEndpoint = App.Properties.getValue("apiEndpoint");
-    var apiKey = App.Properties.getValue("apiKey");
-    System.println(apiEndpoint);
-    // System.println(apiKey);
+  // --------- weather data callback ---------
+  function onWeatherDataReceived(data) {
+    _description = data.get("description");
+    _temperature = data.get("temperature");
+    _rain_one_hour = data.get("rain_one_hour");
+    _rain_three_hour = data.get("rain_three_hour");
 
-    var params = null;
-    var options = {
-      :method => Communications.HTTP_REQUEST_METHOD_GET,
-      :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
-      :headers => { "X-API-Key" => apiKey },
-    };
-
-    System.println("Fetching weather...");
-    Communications.makeWebRequest(
-      apiEndpoint,
-      params,
-      options,
-      method(:onWeatherReceive)
-    );
-  }
-  function onWeatherReceive(responseCode, data) {
-    System.println("Fetching weather: callback ...");
-    if (data != null) {
-      _description = data.get("description");
-      _temperature = data.get("temperature");
-      _rain_one_hour = data.get("rain_one_hour");
-      _rain_three_hour = data.get("rain_three_hour");
-
-      Ui.requestUpdate();
-    }
+    Ui.requestUpdate();
   }
 
   // --------- text processing ---------

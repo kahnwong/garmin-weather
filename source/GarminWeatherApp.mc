@@ -15,4 +15,10 @@ class GarminWeatherApp extends App.AppBase {
   function getInitialView() {
     return [new GarminWeatherView()];
   }
+  function getGlanceView() {
+    return [
+      new GarminWeatherGlanceView(),
+      new GarminWeatherGlanceViewDelegate(),
+    ];
+  }
 }
