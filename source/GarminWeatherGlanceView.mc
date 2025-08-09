@@ -45,7 +45,11 @@ class GarminWeatherGlanceView extends WatchUi.GlanceView {
         w - w,
         h / 2 - 5,
         Graphics.FONT_GLANCE_NUMBER,
-        "1H: " + _rain_one_hour + "% - 3H: " + _rain_three_hour + "%",
+        "1H: " +
+          _rain_one_hour.toNumber() +
+          "% - 3H: " +
+          _rain_three_hour.toNumber() +
+          "%",
         Graphics.TEXT_JUSTIFY_LEFT
       );
     }
