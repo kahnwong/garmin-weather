@@ -33,7 +33,10 @@ class WeatherService {
     );
   }
 
-  function onWeatherReceive(responseCode as Lang.Number, data as Lang.Dictionary or Lang.String or Null) as Void {
+  function onWeatherReceive(
+    responseCode as Lang.Number,
+    data as Lang.Dictionary or Lang.String or Null
+  ) as Void {
     System.println("Fetching weather: callback ...");
     if (data != null && _callback != null) {
       _callback.invoke(data);

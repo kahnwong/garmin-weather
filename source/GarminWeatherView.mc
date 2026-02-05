@@ -3,6 +3,7 @@ using Toybox.Graphics as Gfx;
 using Toybox.Graphics;
 using Toybox.Lang;
 using Toybox.System;
+using Toybox.Time;
 using Toybox.WatchUi as Ui;
 
 class GarminWeatherView extends Ui.View {
@@ -17,7 +18,19 @@ class GarminWeatherView extends Ui.View {
     View.initialize();
 
     _weatherService = new WeatherService(method(:onWeatherDataReceived));
-    _weatherService.makeWeatherRequest();
+
+    // Try to load from cache first
+    var cachedData = WeatherCache.loadFromCache();
+    if (cachedData != null) {
+      System.println("Loaded weather data from cache");
+      _description = cachedData.get("description") as Lang.String;
+      _temperature = cachedData.get("temperature");
+      _rain_one_hour = cachedData.get("rain_one_hour");
+      _rain_three_hour = cachedData.get("rain_three_hour");
+    } else {
+      System.println("Cache invalid or empty, fetching new data");
+      _weatherService.makeWeatherRequest();
+    }
   }
 
   function onLayout(dc) {}
@@ -30,6 +43,12 @@ class GarminWeatherView extends Ui.View {
     // clear the screen
     dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_BLACK);
     dc.clear();
+
+    // Check if cache is expired and refresh if necessary
+    if (_description != null && !WeatherCache.isCacheValid()) {
+      System.println("Cache expired, fetching new data...");
+      _weatherService.makeWeatherRequest();
+    }
 
     // display content
     if (_description != null) {
@@ -60,14 +79,14 @@ class GarminWeatherView extends Ui.View {
         30,
         120,
         Gfx.FONT_XTINY,
-        "1 HR: " + _rain_one_hour.toNumber() + "%",
+        "1 H: " + _rain_one_hour.toNumber() + "%",
         Gfx.TEXT_JUSTIFY_LEFT
       );
       dc.drawText(
         30,
         140,
         Gfx.FONT_XTINY,
-        "3 HR: " + _rain_three_hour.toNumber() + "%",
+        "3 H: " + _rain_three_hour.toNumber() + "%",
         Gfx.TEXT_JUSTIFY_LEFT
       );
     }
@@ -81,6 +100,9 @@ class GarminWeatherView extends Ui.View {
     _temperature = data.get("temperature");
     _rain_one_hour = data.get("rain_one_hour");
     _rain_three_hour = data.get("rain_three_hour");
+
+    // Save to persistent storage cache using shared WeatherCache
+    WeatherCache.saveToCache(data);
 
     Ui.requestUpdate();
   }

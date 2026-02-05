@@ -2,6 +2,7 @@ using Toybox.WatchUi;
 using Toybox.Graphics;
 using Toybox.System;
 using Toybox.Application;
+using Toybox.Lang;
 
 class GarminWeatherGlanceView extends WatchUi.GlanceView {
   var _rain_one_hour;
@@ -12,7 +13,17 @@ class GarminWeatherGlanceView extends WatchUi.GlanceView {
     GlanceView.initialize();
 
     _weatherService = new WeatherService(method(:onWeatherDataReceived));
-    _weatherService.makeWeatherRequest();
+
+    // Try to load from shared cache first
+    var cachedData = WeatherCache.loadFromCache();
+    if (cachedData != null) {
+      System.println("GlanceView: Loaded weather data from cache");
+      _rain_one_hour = cachedData.get("rain_one_hour");
+      _rain_three_hour = cachedData.get("rain_three_hour");
+    } else {
+      System.println("GlanceView: Cache invalid or empty, fetching new data");
+      _weatherService.makeWeatherRequest();
+    }
   }
 
   function onShow() as Void {}
@@ -21,6 +32,12 @@ class GarminWeatherGlanceView extends WatchUi.GlanceView {
     // Set the background color
     dc.setColor(Graphics.COLOR_TRANSPARENT, Graphics.COLOR_BLACK);
     dc.clear();
+
+    // Check if cache is expired and refresh if necessary
+    if (_rain_one_hour != null && !WeatherCache.isCacheValid()) {
+      System.println("GlanceView: Cache expired, fetching new data...");
+      _weatherService.makeWeatherRequest();
+    }
 
     // Set text color
     dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
@@ -61,6 +78,9 @@ class GarminWeatherGlanceView extends WatchUi.GlanceView {
   function onWeatherDataReceived(data) {
     _rain_one_hour = data.get("rain_one_hour");
     _rain_three_hour = data.get("rain_three_hour");
+
+    // Save to shared cache
+    WeatherCache.saveToCache(data);
 
     WatchUi.requestUpdate();
   }
