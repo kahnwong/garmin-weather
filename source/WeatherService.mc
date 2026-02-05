@@ -1,5 +1,6 @@
 using Toybox.Application as App;
 using Toybox.Communications;
+using Toybox.Lang;
 using Toybox.System;
 using Toybox.WatchUi as Ui;
 
@@ -32,7 +33,7 @@ class WeatherService {
     );
   }
 
-  function onWeatherReceive(responseCode, data) {
+  function onWeatherReceive(responseCode as Lang.Number, data as Lang.Dictionary or Lang.String or Null) as Void {
     System.println("Fetching weather: callback ...");
     if (data != null && _callback != null) {
       _callback.invoke(data);

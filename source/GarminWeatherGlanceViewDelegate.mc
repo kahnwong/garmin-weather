@@ -7,7 +7,7 @@ class GarminWeatherGlanceViewDelegate extends WatchUi.GlanceViewDelegate {
   }
 
   // Handle select button press (opens the main app)
-  function onSelect() as Boolean {
+  function onSelect() as Lang.Boolean {
     WatchUi.pushView(new GarminWeatherView(), null, WatchUi.SLIDE_IMMEDIATE);
     return true;
   }
