@@ -5,6 +5,7 @@ using Toybox.Application;
 using Toybox.Lang;
 
 class GarminWeatherGlanceView extends WatchUi.GlanceView {
+  var _temperature;
   var _rain_one_hour;
   var _rain_three_hour;
   var _weatherService;
@@ -18,6 +19,7 @@ class GarminWeatherGlanceView extends WatchUi.GlanceView {
     var cachedData = WeatherCache.loadFromCache();
     if (cachedData != null) {
       System.println("GlanceView: Loaded weather data from cache");
+      _temperature = cachedData.get("temperature");
       _rain_one_hour = cachedData.get("rain_one_hour");
       _rain_three_hour = cachedData.get("rain_three_hour");
     } else {
@@ -34,7 +36,7 @@ class GarminWeatherGlanceView extends WatchUi.GlanceView {
     dc.clear();
 
     // Check if cache is expired and refresh if necessary
-    if (_rain_one_hour != null && !WeatherCache.isCacheValid()) {
+    if (_temperature != null && !WeatherCache.isCacheValid()) {
       System.println("GlanceView: Cache expired, fetching new data...");
       _weatherService.makeWeatherRequest();
     }
@@ -49,12 +51,12 @@ class GarminWeatherGlanceView extends WatchUi.GlanceView {
     var h = dc.getHeight();
 
     // Content
-    if (_rain_one_hour != null) {
+    if (_temperature != null) {
       dc.drawText(
         w - w,
         h - h,
         Graphics.FONT_MEDIUM,
-        "PRECIPITATION",
+        "TEMP: " + _temperature.toNumber() + "°C",
         Graphics.TEXT_JUSTIFY_LEFT
       );
 
@@ -76,6 +78,7 @@ class GarminWeatherGlanceView extends WatchUi.GlanceView {
 
   // --------- weather data callback ---------
   function onWeatherDataReceived(data) {
+    _temperature = data.get("temperature");
     _rain_one_hour = data.get("rain_one_hour");
     _rain_three_hour = data.get("rain_three_hour");
 
