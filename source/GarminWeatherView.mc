@@ -10,8 +10,8 @@ class GarminWeatherView extends Ui.View {
   // api response
   var _description;
   var _temperature;
-  var _rain_one_hour;
-  var _rain_three_hour;
+  var _rain_start;
+  var _rain_stop;
   var _weatherService;
 
   function initialize() {
@@ -25,8 +25,8 @@ class GarminWeatherView extends Ui.View {
       System.println("Loaded weather data from cache");
       _description = cachedData.get("description") as Lang.String;
       _temperature = cachedData.get("temperature");
-      _rain_one_hour = cachedData.get("rain_one_hour");
-      _rain_three_hour = cachedData.get("rain_three_hour");
+      _rain_start = cachedData.get("rain_start");
+      _rain_stop = cachedData.get("rain_stop");
     } else {
       System.println("Cache invalid or empty, fetching new data");
       _weatherService.makeWeatherRequest();
@@ -79,14 +79,14 @@ class GarminWeatherView extends Ui.View {
         30,
         120,
         Gfx.FONT_XTINY,
-        "1 H: " + _rain_one_hour.toNumber() + "%",
+        "Start: " + formatRainTime(_rain_start),
         Gfx.TEXT_JUSTIFY_LEFT
       );
       dc.drawText(
         30,
         140,
         Gfx.FONT_XTINY,
-        "3 H: " + _rain_three_hour.toNumber() + "%",
+        "Stop: " + formatRainTime(_rain_stop),
         Gfx.TEXT_JUSTIFY_LEFT
       );
     }
@@ -98,13 +98,30 @@ class GarminWeatherView extends Ui.View {
   function onWeatherDataReceived(data) {
     _description = data.get("description");
     _temperature = data.get("temperature");
-    _rain_one_hour = data.get("rain_one_hour");
-    _rain_three_hour = data.get("rain_three_hour");
+    _rain_start = data.get("rain_start");
+    _rain_stop = data.get("rain_stop");
 
     // Save to persistent storage cache using shared WeatherCache
     WeatherCache.saveToCache(data);
 
     Ui.requestUpdate();
+  }
+
+  function formatRainTime(value) {
+    if (value == null) {
+      return "-";
+    }
+
+    var text = value as Lang.String;
+    if (text.equals("now")) {
+      return "Now";
+    }
+
+    var length = text.length();
+    if (length > 0 && text.substring(length - 1, length).equals("h")) {
+      return text.substring(0, length - 1) + "H";
+    }
+    return text;
   }
 
   // --------- text processing ---------
